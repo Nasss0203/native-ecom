@@ -4,7 +4,7 @@ import Config from 'react-native-config';
 import { getSession } from '../storage/authStorage';
 
 const TIMEOUT = 15000;
-const BASE_URL = 'https://98e170270938.ngrok-free.app/api/v1';
+const BASE_URL = 'https://2d4c6f25b47a.ngrok-free.app/api/v1';
 
 console.log('🔎 AXIOS BASE_URL =', BASE_URL);
 const instance = axios.create({

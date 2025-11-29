@@ -1,6 +1,7 @@
 // CheckoutScreen.tsx
+import { IconOutline } from '@ant-design/icons-react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -9,17 +10,50 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { getCheckout } from '../../common/api/checkout';
+import { createOrder } from '../../common/api/order';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 
 type PaymentMethod = 'cod' | 'momo' | 'zalopay';
 type Props = NativeStackScreenProps<RootStackParamList, 'Checkout'>;
 export const CheckoutScreen = ({ route, navigation }: Props) => {
+  const { checkoutId } = route.params;
+  console.log('🚀 ~ checkoutId~', checkoutId);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
 
-  const handlePay = () => {
-    // TODO: gọi API thanh toán / điều hướng sang màn hình thành công
-  };
+  const [checkout, setCheckout] = useState<any>();
+  console.log('🚀 ~ checkout~', checkout);
 
+  useEffect(() => {
+    const fetchCheckout = async () => {
+      const data = await getCheckout(checkoutId);
+
+      setCheckout(data);
+    };
+
+    fetchCheckout();
+  }, [checkoutId]);
+
+  const productCheck = checkout?.data?.checkout_items;
+  const orderCheck = checkout?.data;
+  console.log('🚀 ~ productCheck~', productCheck);
+  const handlePay = async () => {
+    const res = await createOrder({
+      cartId: orderCheck.checkout_cart,
+      checkoutId: orderCheck._id,
+      shopId: orderCheck.checkout_shopId,
+      userId: orderCheck.checkout_auth,
+      user_address: {
+        street: '123 Dong Hung Thuan',
+        city: 'Ho Chi Minh',
+        country: 'Viet Nam',
+      },
+    });
+
+    navigation.navigate('OrderThank');
+
+    return res;
+  };
   return (
     <View style={styles.root}>
       <ScrollView
@@ -38,28 +72,37 @@ export const CheckoutScreen = ({ route, navigation }: Props) => {
               </Text>
             </View>
             {/* icon mũi tên / chỉnh sửa nếu cần */}
-            <Text style={styles.chevron}>{'>'}</Text>
+            <IconOutline name="arrow-right" size={20}></IconOutline>
           </View>
         </View>
 
         {/* Sản phẩm */}
-        <View style={styles.card}>
-          <View style={styles.productRow}>
-            <Image
-              source={{
-                uri: 'https://via.placeholder.com/70x70.png?text=Phone',
-              }}
-              style={styles.productImage}
-            />
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.productName} numberOfLines={2}>
-                Xiaomi Redmi Note 14 Pro+ 5G 8GB/256GB
-              </Text>
-              <Text style={styles.productQty}>Số lượng: 1</Text>
-              <Text style={styles.productPrice}>10.690.000 ₫</Text>
-            </View>
-          </View>
-        </View>
+
+        {productCheck?.length > 0 ? (
+          <>
+            {productCheck.map((item: any) => (
+              <View style={styles.card} key={item.productId}>
+                <View style={styles.productRow}>
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.productImage}
+                  />
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <Text style={styles.productName} numberOfLines={2}>
+                      {item.name}
+                    </Text>
+                    <Text style={styles.productQty}>
+                      Số lượng: {item.quantity}
+                    </Text>
+                    <Text style={styles.productPrice}>
+                      {item.totalPrice.toLocaleString('vi-VN')} ₫
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </>
+        ) : null}
 
         {/* Phương thức thanh toán */}
         <View style={styles.card}>
@@ -86,14 +129,25 @@ export const CheckoutScreen = ({ route, navigation }: Props) => {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Chi tiết thanh toán</Text>
 
-          <Row label="Tổng tiền hàng" value="10.690.000 ₫" />
+          <Row
+            label="Tổng tiền hàng"
+            value={`${checkout?.data?.checkout_totalPrice.toLocaleString(
+              'vi-VN',
+            )} ₫`}
+          />
           <Row label="Tổng tiền phí vận chuyển" value="0 ₫" />
           <Row label="Giảm giá phí vận chuyển" value="0 ₫" />
           <Row label="Tổng cộng Voucher giảm giá" value="0 ₫" />
 
           <View style={styles.divider} />
 
-          <Row label="Tổng cộng" value="10.690.000 ₫" bold />
+          <Row
+            label="Tổng cộng"
+            value={`${checkout?.data?.checkout_grandTotal.toLocaleString(
+              'vi-VN',
+            )} ₫`}
+            bold
+          />
         </View>
       </ScrollView>
 
@@ -101,7 +155,11 @@ export const CheckoutScreen = ({ route, navigation }: Props) => {
       <View style={styles.bottomBar}>
         <View style={{ flex: 1 }}>
           <Text style={styles.bottomLabel}>Tổng tiền:</Text>
-          <Text style={styles.bottomTotal}>10.690.000 ₫</Text>
+          <Text
+            style={styles.bottomTotal}
+          >{`${checkout?.data?.checkout_grandTotal.toLocaleString(
+            'vi-VN',
+          )} ₫`}</Text>
         </View>
         <TouchableOpacity style={styles.payButton} onPress={handlePay}>
           <Text style={styles.payButtonText}>Thanh toán</Text>

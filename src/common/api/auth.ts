@@ -26,6 +26,7 @@ export const login = async ({
   return {
     access_token: data.tokens.access_token,
     refresh_token: data.tokens.refresh_token,
+    username: data.username,
     userId: data._id,
     email: data.email,
     roles: data.roles,

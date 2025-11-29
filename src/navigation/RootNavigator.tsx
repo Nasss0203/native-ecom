@@ -9,6 +9,8 @@ import { DetailProduct, HomeScreen, SignInScreen } from '../screens';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import CartScreen from '../screens/cart/CartScreen';
 import CheckoutScreen from '../screens/checkout/CheckoutScreen';
+import OrderScreen from '../screens/order/Order';
+import OrderThankScreen from '../screens/order/ThanksOrder';
 import ProfileScreen from '../screens/profiles/Profile';
 
 export type RootStackParamList = {
@@ -18,6 +20,8 @@ export type RootStackParamList = {
   SignUp: undefined;
   DetailProduct: { productId: string };
   Cart: undefined;
+  OrderThank: undefined;
+  Order: undefined;
   Checkout: { checkoutId: string };
   // Settings: undefined;
 };
@@ -112,7 +116,26 @@ export default function RootNavigator() {
             </ScreenLayout>
           )}
         </Stack.Screen>
-        {/* <Stack.Screen name="Settings">...</Stack.Screen> */}
+        <Stack.Screen
+          name="OrderThank"
+          options={{ title: 'Thanh toán' /*, headerShown:false*/ }}
+        >
+          {props => (
+            <ScreenLayout>
+              <OrderThankScreen {...props} />
+            </ScreenLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen
+          name="Order"
+          options={{ title: 'Đơn hàng' /*, headerShown:false*/ }}
+        >
+          {props => (
+            <ScreenLayout>
+              <OrderScreen {...props} />
+            </ScreenLayout>
+          )}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -12,17 +12,29 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAddCart } from '../../hooks/cart/useCart';
 
 const CATEGORIES = [
   {
+    key: 'order',
+    title: 'Đơn hàng',
+    route: 'Order',
+  },
+  {
+    key: 'notification',
+    title: 'Thông báo',
+    route: 'Notification',
+  },
+  {
+    key: 'message',
+    title: 'Tin nhắn',
+    route: 'Message',
+  },
+  {
     key: 'profile',
     title: 'Tài khoản',
     route: 'Profile',
-    params: { userId: '42' },
   },
-  // { key: 'signin', title: 'Đăng nhập', route: 'SignIn' },
 ];
 
 export default function HomeHeader({ navigation }: NativeStackHeaderProps) {
@@ -42,10 +54,9 @@ export default function HomeHeader({ navigation }: NativeStackHeaderProps) {
         end={{ x: 1, y: 1 }}
         style={styles.container}
       >
-        {/* Hàng trên: Search + Cart */}
         <View style={styles.topRow}>
           <View style={[styles.searchWrap, { marginRight: 12 }]}>
-            <Icon
+            <IconOutline
               name="search"
               size={18}
               color="#a7b4ff"
@@ -65,7 +76,11 @@ export default function HomeHeader({ navigation }: NativeStackHeaderProps) {
                 onPress={() => setQuery('')}
                 style={{ paddingHorizontal: 8 }}
               >
-                <IconOutline name="shopping-cart" size={24} />;
+                <IconOutline
+                  name="shopping-cart"
+                  size={24}
+                  style={{ color: '#fff' }}
+                />
               </Pressable>
             )}
           </View>
@@ -74,7 +89,12 @@ export default function HomeHeader({ navigation }: NativeStackHeaderProps) {
             style={styles.cartBtn}
             onPress={() => navigation.navigate('Cart' as never)}
           >
-            <IconOutline name="shopping-cart" size={24} />;
+            <IconOutline
+              name="shopping-cart"
+              size={24}
+              style={{ color: '#fff' }}
+            />
+            ;
             <View style={styles.badge}>
               <Text style={styles.badgeText}>
                 {dataListCart?.data?.cart_products?.length || 0}
@@ -83,7 +103,6 @@ export default function HomeHeader({ navigation }: NativeStackHeaderProps) {
           </Pressable>
         </View>
 
-        {/* Hàng dưới: scroll ngang chuyển trang */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -96,9 +115,7 @@ export default function HomeHeader({ navigation }: NativeStackHeaderProps) {
                 styles.tabItem,
                 pressed && { opacity: 0.85 },
               ]}
-              onPress={() =>
-                navigation.navigate(c.route as any, c.params as never)
-              }
+              onPress={() => navigation.navigate(c.route as any)}
             >
               <Text style={styles.tabText}>{c.title}</Text>
             </Pressable>

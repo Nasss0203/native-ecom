@@ -1,4 +1,5 @@
 // CartScreen.tsx
+import { IconOutline } from '@ant-design/icons-react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -9,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { reviewCheckout } from '../../common/api/checkout';
 import { useUser } from '../../hooks/auth/useUser';
 import { useAddCart } from '../../hooks/cart/useCart';
 import { RootStackParamList } from '../../navigation/RootNavigator';
@@ -176,7 +178,12 @@ export default function CartScreen({ navigation, route }: Props) {
               style={styles.trashButton}
               onPress={() => handleRemove(item.id)}
             >
-              <Text style={styles.trashText}>🗑️</Text>
+              <IconOutline
+                name="close-circle"
+                size={20}
+                color="#DC0000"
+                style={{ marginHorizontal: 8 }}
+              />
             </TouchableOpacity>
           </View>
 
@@ -186,11 +193,22 @@ export default function CartScreen({ navigation, route }: Props) {
     </TouchableOpacity>
   );
 
-  const handleCheckout = () => {
-    const selectedItems = items.filter(i => i.selected);
-    console.log('Thanh toán các item: ', selectedItems);
+  const cartCheck = dataListCart?.data;
+
+  const handleCheckout = async () => {
+    const reviewCheck = await reviewCheckout({
+      cartId: cartCheck?._id,
+      userId: cartCheck?.cart_userId,
+      shopId: cartCheck?.cart_shopId,
+      order_ids: [
+        {
+          userId: cartCheck?.cart_userId,
+          items_products: cartCheck?.cart_products,
+        },
+      ],
+    });
     // TODO: điều hướng sang màn hình checkout, truyền selectedItems
-    navigation.navigate('Checkout', { checkoutId: '' });
+    navigation.navigate('Checkout', { checkoutId: reviewCheck?.data?._id });
   };
 
   return (

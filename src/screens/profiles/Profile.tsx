@@ -86,42 +86,6 @@ export default function ProfileScreen({ navigation }: Props) {
         </View>
       </View>
 
-      {/* Roles */}
-      {!!session.roles?.length && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Phân quyền</Text>
-          <View style={styles.rolesWrap}>
-            {session.roles.map((r: any) => (
-              <View key={r} style={styles.roleChip}>
-                <Text style={styles.roleText}>{r}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
-
-      {/* Thông tin cơ bản */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Thông tin tài khoản</Text>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>User ID</Text>
-          <Text style={styles.value}>{session.userId}</Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{session.email}</Text>
-        </View>
-
-        {session.shopId && (
-          <View style={styles.row}>
-            <Text style={styles.label}>Shop ID</Text>
-            <Text style={styles.value}>{session.shopId}</Text>
-          </View>
-        )}
-      </View>
-
       {/* Nút logout */}
       <TouchableOpacity style={styles.dangerBtn} onPress={handleLogout}>
         <Text style={styles.dangerText}>Đăng xuất</Text>
