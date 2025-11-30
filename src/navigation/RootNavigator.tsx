@@ -9,6 +9,9 @@ import { DetailProduct, HomeScreen, SignInScreen } from '../screens';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import CartScreen from '../screens/cart/CartScreen';
 import CheckoutScreen from '../screens/checkout/CheckoutScreen';
+import DetailMessageScreen from '../screens/message/DetailMessageScreen';
+import MessageScreen from '../screens/message/MessageScreen';
+import NotificationScreen from '../screens/notification/NotificationScreen';
 import OrderScreen from '../screens/order/Order';
 import OrderThankScreen from '../screens/order/ThanksOrder';
 import ProfileScreen from '../screens/profiles/Profile';
@@ -23,7 +26,9 @@ export type RootStackParamList = {
   OrderThank: undefined;
   Order: undefined;
   Checkout: { checkoutId: string };
-  // Settings: undefined;
+  Notification: undefined;
+  Message: undefined;
+  DetailMessage: { conversationId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -133,6 +138,40 @@ export default function RootNavigator() {
           {props => (
             <ScreenLayout>
               <OrderScreen {...props} />
+            </ScreenLayout>
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen
+          name="Notification"
+          options={{ title: 'Thông báo' /*, headerShown:false*/ }}
+        >
+          {props => (
+            <ScreenLayout>
+              <NotificationScreen {...props} />
+            </ScreenLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen
+          name="Message"
+          options={{ title: 'Tin nhắn' /*, headerShown:false*/ }}
+        >
+          {props => (
+            <ScreenLayout>
+              <MessageScreen {...props} />
+            </ScreenLayout>
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen
+          name="DetailMessage"
+          options={{
+            title: 'Tin nhắn' /*, headerShown:false*/,
+          }}
+        >
+          {props => (
+            <ScreenLayout>
+              <DetailMessageScreen {...props} />
             </ScreenLayout>
           )}
         </Stack.Screen>

@@ -207,45 +207,67 @@ export default function CartScreen({ navigation, route }: Props) {
         },
       ],
     });
-    // TODO: điều hướng sang màn hình checkout, truyền selectedItems
+
     navigation.navigate('Checkout', { checkoutId: reviewCheck?.data?._id });
   };
 
   return (
     <>
-      <FlatList
-        data={items}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContainer}
-      />
-
-      <View style={styles.bottomBar}>
-        <TouchableOpacity
-          style={styles.bottomLeft}
-          onPress={toggleSelectAll}
-          activeOpacity={0.8}
-        >
-          <View
-            style={[styles.checkbox, allSelected && styles.checkboxChecked]}
-          >
-            {allSelected && <Text style={styles.checkboxTick}>✓</Text>}
-          </View>
-          <Text style={styles.bottomLabel}>Tất cả</Text>
-        </TouchableOpacity>
-
-        <View style={styles.bottomRight}>
-          <Text style={styles.totalText}>{formatCurrency(totalPrice)}</Text>
+      {items.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>
+            <IconOutline name="shopping-cart" size={60}></IconOutline>
+          </Text>
+          <Text style={styles.emptyTitle}>Giỏ hàng trống</Text>
+          <Text style={styles.emptySubtitle}>
+            Hãy thêm sản phẩm để bắt đầu mua sắm!
+          </Text>
 
           <TouchableOpacity
-            style={styles.buyButton}
-            onPress={handleCheckout}
-            activeOpacity={0.9}
+            style={styles.emptyButton}
+            onPress={() => navigation.navigate('Home')} // đổi nếu cần
           >
-            <Text style={styles.buyButtonText}>Mua hàng</Text>
+            <Text style={styles.emptyButtonText}>Tiếp tục mua hàng</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      ) : (
+        <>
+          <FlatList
+            data={items}
+            keyExtractor={item => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContainer}
+          />
+
+          {/* Bottom bar chỉ hiện khi có sản phẩm */}
+          <View style={styles.bottomBar}>
+            <TouchableOpacity
+              style={styles.bottomLeft}
+              onPress={toggleSelectAll}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[styles.checkbox, allSelected && styles.checkboxChecked]}
+              >
+                {allSelected && <Text style={styles.checkboxTick}>✓</Text>}
+              </View>
+              <Text style={styles.bottomLabel}>Tất cả</Text>
+            </TouchableOpacity>
+
+            <View style={styles.bottomRight}>
+              <Text style={styles.totalText}>{formatCurrency(totalPrice)}</Text>
+
+              <TouchableOpacity
+                style={styles.buyButton}
+                onPress={handleCheckout}
+                activeOpacity={0.9}
+              >
+                <Text style={styles.buyButtonText}>Mua hàng</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </>
+      )}
     </>
   );
 }
@@ -378,5 +400,44 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 14,
+  },
+
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+
+  emptyIcon: {
+    fontSize: 60,
+    marginBottom: 10,
+  },
+
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+
+  emptyButton: {
+    backgroundColor: '#2563EB',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+
+  emptyButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

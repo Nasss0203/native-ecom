@@ -1,9 +1,15 @@
-// src/screens/home/HomeScreen.tsx
 import { useInfiniteQuery } from '@tanstack/react-query';
 import React from 'react';
-import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { findAllProduct } from '../../common/api/product.api';
 import CardProduct from '../../components/card/CardProduct';
+import SkeletonCardProduct from '../../components/card/SkeletonCardProduct';
 import { QueryKey } from '../../const/queryKey';
 
 export default function HomeScreen({ navigation }: any) {
@@ -19,39 +25,59 @@ export default function HomeScreen({ navigation }: any) {
     initialPageParam: 1,
     queryFn: ({ pageParam = 1 }) =>
       findAllProduct({ page: pageParam, limit: 10 }),
-
     getNextPageParam: lastPage => {
       const { page, limit, total } = lastPage.data;
-
       return page * limit < total ? page + 1 : undefined;
     },
   });
 
   const items = data?.pages.flatMap(p => p.data?.data ?? []) ?? [];
+  const isLoading = status === 'pending' && !data;
+  const isError = status === 'error';
+
+  // dữ liệu skeleton ảo
+  const skeletonItems = React.useMemo(
+    () => Array.from({ length: 6 }, (_, i) => ({ id: `skeleton-${i}` })),
+    [],
+  );
+
+  if (isError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text>Không tải được sản phẩm.</Text>
+      </View>
+    );
+  }
+
+  const listData = isLoading ? skeletonItems : items;
 
   return (
     <FlatList
-      data={items}
-      keyExtractor={item => item._id}
+      data={listData}
+      keyExtractor={item => item.id}
       numColumns={2}
       columnWrapperStyle={styles.column}
       contentContainerStyle={styles.listContent}
-      renderItem={({ item }) => (
-        <CardProduct
-          item={{
-            id: item._id,
-            name: item.product_name,
-            price: item.product_price,
-            image: item.product_thumb,
-          }}
-          onPress={() =>
-            navigation.navigate('DetailProduct', { productId: item._id })
-          }
-        />
-      )}
+      renderItem={({ item }) =>
+        isLoading ? (
+          <SkeletonCardProduct />
+        ) : (
+          <CardProduct
+            item={{
+              id: item._id,
+              name: item.product_name,
+              price: item.product_price,
+              image: item.product_thumb,
+            }}
+            onPress={() =>
+              navigation.navigate('DetailProduct', { productId: item._id })
+            }
+          />
+        )
+      }
       showsVerticalScrollIndicator={false}
       onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
+        if (hasNextPage && !isFetchingNextPage && !isLoading) {
           fetchNextPage();
         }
       }}
@@ -71,6 +97,11 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   column: {
-    justifyContent: 'space-between', // 2 card giãn đều
+    justifyContent: 'space-between',
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
 
   tabContainer: {
-    height: 48,
+    height: 44,
     borderBottomWidth: 1,
     borderColor: '#EEE',
     backgroundColor: '#FFF',

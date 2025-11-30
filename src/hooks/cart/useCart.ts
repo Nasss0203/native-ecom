@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import {
   addCart,
   deleteCart,
@@ -14,7 +15,7 @@ type UpdateItem = {
   productId: string;
 };
 
-type CartProduct = any; // TODO: khai báo type đúng
+type CartProduct = any;
 type CartData = {
   _id: string;
   cart_shopId: string;
@@ -35,6 +36,9 @@ export function useAddCart() {
   const { user } = useUser();
 
   const cartKey = ['cart', user?.userId];
+
+  const [addSuccess, setAddSuccess] = useState(false);
+  const resetAddSuccess = () => setAddSuccess(false);
 
   // 1. Lấy giỏ hàng
   const {
@@ -92,6 +96,10 @@ export function useAddCart() {
       });
 
       return { previousCart };
+    },
+
+    onSuccess: () => {
+      setAddSuccess(true);
     },
 
     onError: (_err, _vars, context) => {
@@ -176,5 +184,8 @@ export function useAddCart() {
     removeFromCart,
     isDeletingCart,
     deleteError,
+
+    addSuccess,
+    resetAddSuccess,
   };
 }

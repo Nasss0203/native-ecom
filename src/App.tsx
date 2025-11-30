@@ -6,6 +6,7 @@
  */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './navigation/RootNavigator';
 const queryClient = new QueryClient();
@@ -13,7 +14,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <RootNavigator />
+        <PaperProvider>
+          <RootNavigator />
+        </PaperProvider>
       </SafeAreaProvider>
     </QueryClientProvider>
   );
