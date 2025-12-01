@@ -24,7 +24,7 @@ const MAX_HEIGHT = 180; // ~ 6–10 dòng, tuỳ font anh chỉnh
 
 export default function DetailProduct({ route, navigation }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [loginDialogVisible, setLoginDialogVisible] = React.useState(false);
+  const [loginDialogVisible, setLoginDialogVisible] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
   const { user } = useUser();
 

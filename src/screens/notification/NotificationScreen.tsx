@@ -1,78 +1,86 @@
+// src/screens/notification/NotificationScreen.tsx
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
+import {
+  fetchNotifications,
+  NotificationItemDto,
+} from '../../common/api/notification';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Notification'>;
 
-const items = [
-  {
-    _id: '1',
-    image: '',
-    title: 'Đơn hàng #1234 đã được xác nhận',
-    description:
-      'Cảm ơn bạn đã đặt hàng, chúng tôi đang chuẩn bị để giao cho bạn.',
-    time: '2 giờ trước',
-  },
-  {
-    _id: '2',
-    image: '',
-    title: 'Khuyến mãi 11.11',
-    description: 'Giảm đến 50% cho tất cả sản phẩm trong hôm nay.',
-    time: 'Hôm nay',
-  },
-];
-
-const NotificationItem = ({ item }: { item: (typeof items)[number] }) => {
+const NotificationItem = ({ item }: { item: NotificationItemDto }) => {
   return (
     <View style={styles.card}>
       <View style={styles.avatarWrapper}>
         <Image
-          source={
-            {
-              uri: item.image,
-            }
-            // hoặc icon tạm
-          }
+          source={{ uri: 'https://via.placeholder.com/44x44.png?text=OD' }}
           style={styles.avatar}
         />
       </View>
 
-      {/* Nội dung */}
       <View style={styles.textWrapper}>
         <View style={styles.titleRow}>
           <Text style={styles.title} numberOfLines={2}>
-            {item.title || 'Tiêu đề thông báo'}
+            {item.title}
           </Text>
-          {item.time ? (
-            <Text style={styles.time} numberOfLines={1}>
-              {item.time}
-            </Text>
-          ) : null}
+          <Text style={styles.time} numberOfLines={1}>
+            {/* tạm thời, sau muốn thì format createdAt */}
+            {new Date(item.createdAt).toLocaleTimeString('vi-VN')}
+          </Text>
         </View>
 
         <Text style={styles.description} numberOfLines={2}>
-          {item.description ||
-            'Mô tả ngắn gọn nội dung thông báo sẽ hiển thị tại đây.'}
+          {item.message}
         </Text>
       </View>
     </View>
   );
 };
 
-const NotificationScreen = ({ navigation, route }: Props) => {
+const NotificationScreen = ({ navigation }: Props) => {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => fetchNotifications({ page: 1, limit: 50 }),
+  });
+
+  const notifications = data?.items ?? [];
+  console.log('🚀 ~ notifications~', notifications);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.listContent, { justifyContent: 'center' }]}>
+        <Text>Đang tải...</Text>
+      </View>
+    );
+  }
+
+  if (!notifications.length) {
+    return (
+      <View style={[styles.listContent, { justifyContent: 'center' }]}>
+        <Text>Chưa có thông báo nào</Text>
+      </View>
+    );
+  }
+
   return (
     <FlatList
-      data={items}
+      data={notifications}
       keyExtractor={item => item._id}
       contentContainerStyle={styles.listContent}
       renderItem={({ item }) => <NotificationItem item={item} />}
       showsVerticalScrollIndicator={false}
+      refreshing={isLoading}
+      onRefresh={refetch}
     />
   );
 };
 
 export default NotificationScreen;
+
+// ... styles giữ nguyên như bạn đang có
 
 const styles = StyleSheet.create({
   // Card thông báo

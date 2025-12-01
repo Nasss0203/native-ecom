@@ -46,3 +46,6 @@
 | Package                    | Mô tả                                       |
 | -------------------------- | ------------------------------------------- |
 | `react-native-permissions` | Xin quyền truy cập camera, GPS, micro, v.v. |
+
+cd /d E:\react-native\doannative\android
+./gradlew assembleRelease --no-daemon --max-workers=1

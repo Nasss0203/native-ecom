@@ -1,5 +1,5 @@
 import { LoginFormValues } from '../../validation/auth';
-import { AuthSession } from '../storage/authStorage';
+import { AuthSession, clearSession } from '../storage/authStorage';
 import axios from './axios';
 
 export const register = async ({ email, username, password }: any) => {
@@ -34,13 +34,12 @@ export const login = async ({
   };
 };
 
-export const logout = async () => {
+export const logoutService = async () => {
   try {
-    const response = await axios.post('/auth/logout', {});
-
-    return response;
-  } catch (error) {
-    console.error('Error during log out:', error);
-    throw error;
+    await axios.post('/auth/logout');
+  } catch (err) {
+    console.warn('Logout API failed, continue clearing session locally.');
+  } finally {
+    await clearSession(); // luôn xoá local session
   }
 };

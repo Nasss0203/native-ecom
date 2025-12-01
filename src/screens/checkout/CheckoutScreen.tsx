@@ -18,11 +18,9 @@ type PaymentMethod = 'cod' | 'momo' | 'zalopay';
 type Props = NativeStackScreenProps<RootStackParamList, 'Checkout'>;
 export const CheckoutScreen = ({ route, navigation }: Props) => {
   const { checkoutId } = route.params;
-  console.log('🚀 ~ checkoutId~', checkoutId);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
 
   const [checkout, setCheckout] = useState<any>();
-  console.log('🚀 ~ checkout~', checkout);
 
   useEffect(() => {
     const fetchCheckout = async () => {
@@ -36,7 +34,6 @@ export const CheckoutScreen = ({ route, navigation }: Props) => {
 
   const productCheck = checkout?.data?.checkout_items;
   const orderCheck = checkout?.data;
-  console.log('🚀 ~ productCheck~', productCheck);
   const handlePay = async () => {
     const res = await createOrder({
       cartId: orderCheck.checkout_cart,

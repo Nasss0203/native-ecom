@@ -25,7 +25,7 @@ export default function SignInScreen({ navigation }: Props) {
     formState: { errors },
   } = useForm<LoginFormValues>({
     defaultValues: {
-      email: 'anhnamnguyen0203@gmail.com',
+      email: 'nguyenanhnam23@gmail.com',
       password: '1234567890',
     },
     resolver: zodResolver(loginSchema),

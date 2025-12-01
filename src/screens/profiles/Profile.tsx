@@ -8,11 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {
-  AuthSession,
-  clearSession,
-  getSession,
-} from '../../common/storage/authStorage';
+import { logoutService } from '../../common/api/auth';
+import { AuthSession, getSession } from '../../common/storage/authStorage';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
@@ -82,11 +79,16 @@ export default function ProfileScreen({ navigation }: Props) {
   }, []);
 
   const handleLogout = async () => {
-    await clearSession();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' }],
-    });
+    try {
+      await logoutService();
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
   };
 
   if (loading) {

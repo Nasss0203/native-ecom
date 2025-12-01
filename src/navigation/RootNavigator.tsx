@@ -5,6 +5,7 @@ import React from 'react';
 
 import HomeHeader from '../components/layout/HomeHeader';
 import ScreenLayout from '../components/layout/ScreenLayout';
+import { useRealtimeNotifications } from '../hooks/notifications/useRealtimeNotifications';
 import { DetailProduct, HomeScreen, SignInScreen } from '../screens';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import CartScreen from '../screens/cart/CartScreen';
@@ -34,6 +35,8 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
+  useRealtimeNotifications();
+
   return (
     <NavigationContainer theme={DefaultTheme}>
       <Stack.Navigator
