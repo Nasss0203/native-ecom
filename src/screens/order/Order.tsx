@@ -1,15 +1,15 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   FlatList,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { getOrderByStatus } from '../../common/api/order';
 import {
   IOrderStatus,
   mapStatusButton,
@@ -17,107 +17,152 @@ import {
   OrderItem,
   TABS,
 } from '../../common/types/order.type';
+import { useOrders } from '../../hooks/orders/useOrder';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 // import { getOrders } from '../../apis/order'; // nếu có API thì import
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Order'>;
-
-const renderOrder = ({
-  item: order,
-  expandedOrderId,
-  setExpandedOrderId,
-}: {
-  item: OrderItem;
-  expandedOrderId: string | null;
-  setExpandedOrderId: React.Dispatch<React.SetStateAction<string | null>>;
-}) => {
-  const isExpanded = expandedOrderId === order._id;
-  const productsToShow = isExpanded
-    ? order.order_products
-    : order.order_products.slice(0, 1);
-
-  return (
-    <View style={styles.card}>
-      {/* Header */}
-      <View style={styles.cardHeader}>
-        <Text style={styles.statusText}>
-          Trạng thái: {mapStatusLabel(order.order_status)}
-        </Text>
-        <Text style={styles.totalText}>
-          {order.order_checkout?.grandTotal
-            ? order.order_checkout.grandTotal.toLocaleString()
-            : order.order_checkout?.totalPrice?.toLocaleString()}{' '}
-          ₫
-        </Text>
-      </View>
-
-      {/* List sản phẩm */}
-      {productsToShow.map((item, index) => (
-        <View key={index} style={styles.productRow}>
-          <Image source={{ uri: item.image }} style={styles.productImage} />
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={styles.productName} numberOfLines={1}>
-              {item.name}
-            </Text>
-            <Text style={styles.qtyText}>Số lượng: {item.quantity}</Text>
-            <Text style={styles.productPrice}>
-              {item.totalPrice?.toLocaleString()} ₫
-            </Text>
-          </View>
-        </View>
-      ))}
-
-      {/* Xem thêm / Thu gọn */}
-      {order.order_products.length > 1 && (
-        <View style={styles.viewMore}>
-          <TouchableOpacity
-            onPress={() => setExpandedOrderId(isExpanded ? null : order._id)}
-          >
-            <Text style={styles.textMore}>
-              {isExpanded ? 'Thu gọn' : 'Xem thêm'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Footer */}
-      <View style={styles.cardFooter}>
-        <TouchableOpacity style={styles.statusButton}>
-          <Text style={styles.statusButtonText}>
-            {mapStatusButton(order.order_status)}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
 
 const OrderScreen = ({ navigation }: Props) => {
   const [activeTab, setActiveTab] = useState<IOrderStatus>(
     IOrderStatus.PENDING,
   );
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
-  const [orders, setOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [confirmOrderId, setConfirmOrderId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadOrders = async () => {
-      setLoading(true);
-      try {
-        const res = await getOrderByStatus(activeTab);
-        setOrders(res?.data ?? []);
-      } catch (error) {
-        console.log('Lỗi load orders:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { orders, isLoading, isError, cancelOrder, isCancelling } =
+    useOrders(activeTab);
+  console.log('🚀 ~ orders~', orders);
 
-    loadOrders();
-  }, [activeTab]);
+  const renderOrder = ({ item: order }: { item: OrderItem }) => {
+    const isExpanded = expandedOrderId === order._id;
+    const productsToShow = isExpanded
+      ? order.order_products
+      : order.order_products.slice(0, 1);
+
+    const statusCancel = order.order_status;
+
+    return (
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => navigation.navigate('OrderDetail', { order })}
+      >
+        <View style={styles.card}>
+          {/* Header */}
+          <View style={styles.cardHeader}>
+            <Text style={styles.statusText}>
+              Trạng thái: {mapStatusLabel(order.order_status)}
+            </Text>
+            <Text style={styles.totalText}>
+              {order.order_checkout?.grandTotal
+                ? order.order_checkout.grandTotal.toLocaleString()
+                : order.order_checkout?.totalPrice?.toLocaleString()}{' '}
+              ₫
+            </Text>
+          </View>
+
+          {/* List sản phẩm */}
+          {productsToShow.map((item, index) => (
+            <View key={index} style={styles.productRow}>
+              <Image source={{ uri: item.image }} style={styles.productImage} />
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <Text style={styles.productName} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Text style={styles.qtyText}>Số lượng: {item.quantity}</Text>
+                <Text style={styles.productPrice}>
+                  {item.totalPrice?.toLocaleString()} ₫
+                </Text>
+              </View>
+            </View>
+          ))}
+
+          {/* Xem thêm / Thu gọn */}
+          {order.order_products.length > 1 && (
+            <View style={styles.viewMore}>
+              <TouchableOpacity
+                onPress={() =>
+                  setExpandedOrderId(isExpanded ? null : order._id || null)
+                }
+              >
+                <Text style={styles.textMore}>
+                  {isExpanded ? 'Thu gọn' : 'Xem thêm'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Footer */}
+
+          <View style={styles.cardFooter}>
+            {statusCancel === IOrderStatus.PENDING ||
+            statusCancel === IOrderStatus.CONFIRMED ? (
+              <TouchableOpacity
+                style={styles.statusCancel}
+                onPress={() => setConfirmOrderId(order._id)}
+                disabled={isCancelling}
+              >
+                <Text style={styles.statusCancelText}>
+                  {isCancelling ? 'Đang hủy...' : 'Hủy đơn hàng'}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+
+            <TouchableOpacity style={styles.statusButton}>
+              <Text style={styles.statusButtonText}>
+                {mapStatusButton(order.order_status)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {/* Modal xác nhận hủy đơn */}
+          <Modal
+            visible={!!confirmOrderId}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setConfirmOrderId(null)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Xác nhận hủy đơn</Text>
+                <Text style={styles.modalMessage}>
+                  Bạn có chắc chắn muốn hủy đơn hàng này không?
+                </Text>
+
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonCancel]}
+                    onPress={() => setConfirmOrderId(null)}
+                    disabled={isCancelling}
+                  >
+                    <Text style={styles.modalButtonCancelText}>Không</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonConfirm]}
+                    onPress={() => {
+                      if (confirmOrderId) {
+                        cancelOrder(confirmOrderId);
+                      }
+                      setConfirmOrderId(null);
+                    }}
+                    disabled={isCancelling}
+                  >
+                    <Text style={styles.modalButtonConfirmText}>
+                      {isCancelling ? 'Đang hủy...' : 'Đồng ý'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.screen}>
+      {/* TAB STATUS */}
       <View style={styles.tabContainer}>
         <ScrollView
           horizontal
@@ -145,10 +190,16 @@ const OrderScreen = ({ navigation }: Props) => {
           ))}
         </ScrollView>
       </View>
+
+      {/* CONTENT */}
       <View style={styles.content}>
-        {loading ? (
+        {isLoading ? (
           <View style={styles.center}>
             <Text style={styles.loading}>Đang tải...</Text>
+          </View>
+        ) : isError ? (
+          <View style={styles.center}>
+            <Text style={styles.empty}>Có lỗi khi tải đơn hàng</Text>
           </View>
         ) : orders.length === 0 ? (
           <View style={styles.center}>
@@ -158,9 +209,7 @@ const OrderScreen = ({ navigation }: Props) => {
           <FlatList
             data={orders}
             keyExtractor={item => item._id?.toString()}
-            renderItem={({ item }) =>
-              renderOrder({ item, expandedOrderId, setExpandedOrderId })
-            }
+            renderItem={renderOrder}
             contentContainerStyle={{ paddingBottom: 16 }}
           />
         )}
@@ -263,17 +312,32 @@ const styles = StyleSheet.create({
   },
   cardFooter: {
     marginTop: 14,
-    alignItems: 'flex-end',
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
+    justifyContent: 'flex-end',
   },
   statusButton: {
     paddingVertical: 6,
     paddingHorizontal: 16,
-    borderRadius: 20,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#1E88E5',
   },
   statusButtonText: {
     color: '#1E88E5',
+    fontWeight: '600',
+  },
+
+  statusCancel: {
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e41212',
+  },
+  statusCancelText: {
+    color: '#e41212',
     fontWeight: '600',
   },
 
@@ -284,4 +348,51 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   touchMore: {},
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 16,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  modalButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  modalButtonCancel: {
+    backgroundColor: '#EEE',
+  },
+  modalButtonConfirm: {
+    backgroundColor: '#e41212',
+  },
+  modalButtonCancelText: {
+    color: '#333',
+    fontWeight: '600',
+  },
+  modalButtonConfirmText: {
+    color: '#FFF',
+    fontWeight: '600',
+  },
 });

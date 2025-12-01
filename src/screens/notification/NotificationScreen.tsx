@@ -66,15 +66,17 @@ const NotificationScreen = ({ navigation }: Props) => {
   }
 
   return (
-    <FlatList
-      data={notifications}
-      keyExtractor={item => item._id}
-      contentContainerStyle={styles.listContent}
-      renderItem={({ item }) => <NotificationItem item={item} />}
-      showsVerticalScrollIndicator={false}
-      refreshing={isLoading}
-      onRefresh={refetch}
-    />
+    <View style={{ flex: 1 }}>
+      <FlatList
+        data={notifications}
+        keyExtractor={item => item._id}
+        contentContainerStyle={styles.listContent}
+        renderItem={({ item }) => <NotificationItem item={item} />}
+        showsVerticalScrollIndicator={false}
+        refreshing={isLoading}
+        onRefresh={refetch}
+      />
+    </View>
   );
 };
 
@@ -145,7 +147,6 @@ const styles = StyleSheet.create({
 
   // List
   listContent: {
-    flex: 1,
     paddingHorizontal: 12,
     paddingTop: 12,
     paddingBottom: 24,

@@ -6,6 +6,12 @@ export enum IOrderStatus {
   DELIVERED = 'delivered',
 }
 
+export enum IOrderPayment {
+  PENDING = 'pending',
+  PAID = 'paid',
+  FAILED = 'failed',
+}
+
 export const TABS = [
   { key: IOrderStatus.PENDING, label: 'Chờ thanh toán' },
   { key: IOrderStatus.CONFIRMED, label: 'Đã xác nhận' },

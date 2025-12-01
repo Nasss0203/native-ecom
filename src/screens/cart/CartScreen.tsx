@@ -56,8 +56,6 @@ export default function CartScreen({ navigation, route }: Props) {
     [items],
   );
 
-  const allSelected = items.length > 0 && items.every(i => i.selected);
-
   const formatCurrency = (value: number) => value.toLocaleString('vi-VN') + 'đ';
 
   const handleIncrease = (id: string) => {
@@ -131,66 +129,48 @@ export default function CartScreen({ navigation, route }: Props) {
     );
   };
 
-  const toggleSelectAll = () => {
-    setItems(prev => prev.map(i => ({ ...i, selected: !allSelected })));
-  };
-
   const renderItem = ({ item }: { item: CartItem }) => (
-    <TouchableOpacity
-      activeOpacity={10}
-      style={styles.cardContainer}
-      onPress={() => toggleSelect(item.id)}
-    >
-      <View style={styles.itemCheckboxWrapper}>
-        <View
-          style={[styles.checkbox, item.selected && styles.checkboxChecked]}
-        >
-          {item.selected && <Text style={styles.checkboxTick}>✓</Text>}
+    <View style={styles.card}>
+      <Image source={{ uri: item.image }} style={styles.image} />
+
+      <View style={styles.cardRight}>
+        <Text style={styles.name} numberOfLines={2}>
+          {item.name}
+        </Text>
+
+        <View style={styles.quantityRow}>
+          <TouchableOpacity
+            style={styles.qtyButton}
+            onPress={() => handleDecrease(item.id)}
+          >
+            <Text style={styles.qtyText}>−</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.qtyNumber}>{item.quantity}</Text>
+
+          <TouchableOpacity
+            style={styles.qtyButton}
+            onPress={() => handleIncrease(item.id)}
+          >
+            <Text style={styles.qtyText}>+</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.trashButton}
+            onPress={() => handleRemove(item.id)}
+          >
+            <IconOutline
+              name="close-circle"
+              size={20}
+              color="#DC0000"
+              style={{ marginHorizontal: 8 }}
+            />
+          </TouchableOpacity>
         </View>
+
+        <Text style={styles.price}>{formatCurrency(item.price)}</Text>
       </View>
-
-      <View style={styles.card}>
-        <Image source={{ uri: item.image }} style={styles.image} />
-
-        <View style={styles.cardRight}>
-          <Text style={styles.name} numberOfLines={2}>
-            {item.name}
-          </Text>
-
-          <View style={styles.quantityRow}>
-            <TouchableOpacity
-              style={styles.qtyButton}
-              onPress={() => handleDecrease(item.id)}
-            >
-              <Text style={styles.qtyText}>−</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.qtyNumber}>{item.quantity}</Text>
-
-            <TouchableOpacity
-              style={styles.qtyButton}
-              onPress={() => handleIncrease(item.id)}
-            >
-              <Text style={styles.qtyText}>+</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.trashButton}
-              onPress={() => handleRemove(item.id)}
-            >
-              <IconOutline
-                name="close-circle"
-                size={20}
-                color="#DC0000"
-                style={{ marginHorizontal: 8 }}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.price}>{formatCurrency(item.price)}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+    </View>
   );
 
   const cartCheck = dataListCart?.data;
@@ -241,22 +221,8 @@ export default function CartScreen({ navigation, route }: Props) {
 
           {/* Bottom bar chỉ hiện khi có sản phẩm */}
           <View style={styles.bottomBar}>
-            <TouchableOpacity
-              style={styles.bottomLeft}
-              onPress={toggleSelectAll}
-              activeOpacity={0.8}
-            >
-              <View
-                style={[styles.checkbox, allSelected && styles.checkboxChecked]}
-              >
-                {allSelected && <Text style={styles.checkboxTick}>✓</Text>}
-              </View>
-              <Text style={styles.bottomLabel}>Tất cả</Text>
-            </TouchableOpacity>
-
             <View style={styles.bottomRight}>
               <Text style={styles.totalText}>{formatCurrency(totalPrice)}</Text>
-
               <TouchableOpacity
                 style={styles.buyButton}
                 onPress={handleCheckout}
@@ -382,8 +348,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   bottomRight: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   totalText: {
     color: '#FF3B30',
@@ -392,12 +360,14 @@ const styles = StyleSheet.create({
   },
   buyButton: {
     paddingHorizontal: 18,
-    paddingVertical: 10,
+    paddingVertical: 14,
+    width: 150,
     borderRadius: 24,
     backgroundColor: '#007bff',
   },
   buyButtonText: {
     color: '#FFFFFF',
+    textAlign: 'center',
     fontWeight: '600',
     fontSize: 14,
   },

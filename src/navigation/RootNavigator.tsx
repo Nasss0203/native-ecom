@@ -14,6 +14,7 @@ import DetailMessageScreen from '../screens/message/DetailMessageScreen';
 import MessageScreen from '../screens/message/MessageScreen';
 import NotificationScreen from '../screens/notification/NotificationScreen';
 import OrderScreen from '../screens/order/Order';
+import OrderDetailScreen from '../screens/order/OrderDetail';
 import OrderThankScreen from '../screens/order/ThanksOrder';
 import ProfileScreen from '../screens/profiles/Profile';
 
@@ -30,6 +31,7 @@ export type RootStackParamList = {
   Notification: undefined;
   Message: undefined;
   DetailMessage: { conversationId: string };
+  OrderDetail: { order: any };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -141,6 +143,19 @@ export default function RootNavigator() {
           {props => (
             <ScreenLayout>
               <OrderScreen {...props} />
+            </ScreenLayout>
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen
+          name="OrderDetail"
+          options={{
+            title: 'Thông tin đơn hàng' /*, headerShown:false*/,
+          }}
+        >
+          {props => (
+            <ScreenLayout>
+              <OrderDetailScreen {...props} />
             </ScreenLayout>
           )}
         </Stack.Screen>

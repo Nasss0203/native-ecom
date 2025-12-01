@@ -1,4 +1,4 @@
-import { IOrderStatus } from '../types/order.type';
+import { IOrderPayment, IOrderStatus } from '../types/order.type';
 import axios from './axios';
 
 type OrderType = {
@@ -11,6 +11,11 @@ type OrderType = {
     city: string;
     country: string;
   };
+};
+
+type OrderUpdate = {
+  order_status?: IOrderStatus;
+  order_payment?: IOrderPayment;
 };
 
 export const createOrder = async ({
@@ -37,6 +42,24 @@ export const getOrderByStatus = async (status: IOrderStatus) => {
       status,
     },
   });
-  console.log('🚀 ~ response~', response);
+  return response.data;
+};
+
+export const getOrder = async (orderId: string) => {
+  const response = await axios.get(`/order/${orderId}`, {});
+  return response.data;
+};
+
+export const updateOrderByUser = async ({
+  orderId,
+  order_status,
+}: {
+  orderId: string;
+  order_status: IOrderStatus;
+}) => {
+  const response = await axios.patch(`/order/update/${orderId}`, {
+    order_status,
+  });
+  console.log('🚀 ~ response~updateOrderByUser', response);
   return response.data;
 };
