@@ -85,22 +85,30 @@ export default function HomeHeader({ navigation }: NativeStackHeaderProps) {
             )}
           </View>
 
-          <Pressable
-            style={styles.cartBtn}
-            onPress={() => navigation.navigate('Cart' as never)}
-          >
-            <IconOutline
-              name="shopping-cart"
-              size={24}
-              style={{ color: '#fff' }}
-            />
-            ;
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {dataListCart?.data?.cart_products?.length || 0}
-              </Text>
-            </View>
-          </Pressable>
+          <View style={styles.buttonFlex}>
+            <Pressable
+              style={styles.cartBtn}
+              onPress={() => navigation.navigate('Cart' as never)}
+            >
+              <IconOutline
+                name="shopping-cart"
+                size={24}
+                style={{ color: '#fff' }}
+              />
+              ;
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {dataListCart?.data?.cart_products?.length || 0}
+                </Text>
+              </View>
+            </Pressable>
+            <Pressable
+              style={styles.filterBtn}
+              // onPress={() => navigation.navigate('Cart' as never)}
+            >
+              <IconOutline name="filter" size={24} style={{ color: '#fff' }} />;
+            </Pressable>
+          </View>
         </View>
 
         <ScrollView
@@ -129,6 +137,12 @@ export default function HomeHeader({ navigation }: NativeStackHeaderProps) {
 const styles = StyleSheet.create({
   container: { padding: 12 },
   topRow: { flexDirection: 'row', alignItems: 'center' },
+
+  buttonFlex: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+  },
   cartBtn: {
     width: 42,
     height: 42,
@@ -138,6 +152,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+  },
+
+  filterBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   badge: {
     position: 'absolute',
